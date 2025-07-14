@@ -12,16 +12,33 @@ const DEFAULT_LANG = process.env.DEFAULT_LANG || 'en'
 app.use(parser.json())
 app.use(express.static('.'))
 
-// ✅ 主要 API：天气查询工具
-app.post('/weather', async (req, res) => {
-  const { city } = req.body
+app.post('v1/mcp', async (req, res) => {
+  const body = req.body
 
-  if (!city) return res.status(400).json({ error: 'Missing city field' })
+  if (body.jsonrpc !== '2.0' || !body.id || !body.method) {
+    return res.status(400).json({
+      jsonrpc: '2.0',
+      id: body.id || null,
+      error: { code: -32600, message: 'Invalid Request' },
+    })
+  }
+
+  if (body.method !== 'weather') {
+    return res.status(404).json({
+      jsonrpc: '2.0',
+      id: body.id,
+      error: { code: -32601, message: 'Method not found' },
+    })
+  }
 
   try {
+
+    const city = body.params?.city
+    if (!city) throw new Error('Missing city')
+
     // 自动识别城市名称使用的语言
     const lang3 = franc(city) // 返回 ISO 639-3 语言码
-    const lang = iso6393to1[lang3] || DEFAULT_LANG // 转成 ISO 639-1，默认英文
+    const lang = iso6393to1[lang3] || DEFAULT_LANG || 'en' // 转成 ISO 639-1，默认英文
     // 使用 Open-Meteo API（无需授权）
     const geo = await axios.get(`https://geocoding-api.open-meteo.com/v1/search`, {
       params: {
@@ -32,7 +49,7 @@ app.post('/weather', async (req, res) => {
     })
     const location = geo.data.results?.[0]
 
-    if (!location) return res.status(404).json({ error: 'City not found' })
+    if (!location) throw new Error('Missing city')
 
     const { latitude, longitude, name, country } = location
 
@@ -59,13 +76,20 @@ app.post('/weather', async (req, res) => {
 
     const reply = replyTemplates[lang] || replyTemplates[DEFAULT_LANG]
 
-    res.json({ reply })
+    return res.json({
+      jsonrpc: '2.0',
+      id: body.id,
+      result: { reply },
+    })
   } catch (err) {
-    console.error(err.message)
-    res.status(500).json({ error: 'Weather query failed' })
+    return res.status(500).json({
+      jsonrpc: '2.0',
+      id: body.id,
+      error: { code: -32000, message: err.message },
+    })
   }
 })
 
 app.listen(PORT, () => {
-  console.log(`✅ MCP tool server is running at http://localhost:${PORT}`)
+  console.log(`✅ MCP 服务运行中: http://localhost:${PORT}/v1/mcp`)
 })

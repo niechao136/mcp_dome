@@ -1,14 +1,12 @@
 openapi: 3.0.0
 info:
-  title: Weather Tool
+  title: MCP Weather Tool
   version: 1.0.0
   description: Query current weather by city name
-servers:
-  - url: http://106.15.201.186:8080
 paths:
-  /weather:
+  /v1/mcp:
     post:
-      summary: Get current weather
+      summary: Query weather
       requestBody:
         required: true
         content:
@@ -16,16 +14,15 @@ paths:
             schema:
               type: object
               properties:
-                city:
-                  type: string
-                  description: City to query
+                id: { type: string }
+                jsonrpc: { type: string }
+                method: { type: string, example: weather }
+                params:
+                  type: object
+                  properties:
+                    city:
+                      type: string
+                      example: 東京
       responses:
         '200':
-          description: Weather result
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  reply:
-                    type: string
+          description: JSON-RPC Result

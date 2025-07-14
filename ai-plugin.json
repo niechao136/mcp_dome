@@ -1,0 +1,11 @@
+{
+  "schema_version": "v1",
+  "name": "mcp-weather",
+  "description": "获取城市天气的 MCP 插件，自动识别语言并返回天气描述",
+  "auth": { "type": "none" },
+  "api": {
+    "type": "mcp",
+    "url": "http://106.15.201.186:8080/v1/mcp"
+  },
+  "logo_url": "http://106.15.201.186:8080/logo.png"
+}
