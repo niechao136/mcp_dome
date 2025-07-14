@@ -1,7 +1,7 @@
 import express from 'express'
 import parser from 'body-parser'
 import axios from 'axios'
-import { franc } from 'franc'
+import * as franc from 'franc'
 import iso6393to1 from 'iso-639-3-to-1'
 import weatherCodeMapMulti from './weatherCodeMapMulti.js'
 
@@ -12,7 +12,21 @@ const DEFAULT_LANG = process.env.DEFAULT_LANG || 'en'
 app.use(parser.json())
 app.use(express.static('.'))
 
-app.post('v1/mcp', async (req, res) => {
+function detectLang(text) {
+  const lang3 = franc.franc(text)
+  if (lang3 === 'und') {
+    // 简单规则：如果是中文字符，默认 zh
+    if (/[\u4e00-\u9fa5]/.test(text)) return 'zh'
+    if (/[\u3040-\u30ff]/.test(text)) return 'ja' // 日文
+    if (/[\uac00-\ud7af]/.test(text)) return 'ko' // 韩文
+    return 'en' // 默认 fallback
+  }
+
+  // 如果 franc 返回合法语言，则转为 ISO 639-1
+  return iso6393to1[lang3] || DEFAULT_LANG || 'en'
+}
+
+app.post('/v1/mcp', async (req, res) => {
   const body = req.body
 
   if (body.jsonrpc !== '2.0' || !body.id || !body.method) {
@@ -37,8 +51,7 @@ app.post('v1/mcp', async (req, res) => {
     if (!city) throw new Error('Missing city')
 
     // 自动识别城市名称使用的语言
-    const lang3 = franc(city) // 返回 ISO 639-3 语言码
-    const lang = iso6393to1[lang3] || DEFAULT_LANG || 'en' // 转成 ISO 639-1，默认英文
+    const lang = detectLang(city)
     // 使用 Open-Meteo API（无需授权）
     const geo = await axios.get(`https://geocoding-api.open-meteo.com/v1/search`, {
       params: {
