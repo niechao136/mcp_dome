@@ -1,0 +1,14 @@
+version: '3'
+services:
+  weather-tool:
+    container_name: weather-tool
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - .:/app  # 👈 自动挂载本地代码，支持热更新
+    env_file:
+      - .env
+    restart: unless-stopped
