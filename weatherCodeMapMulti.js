@@ -1,5 +1,5 @@
 
-module.exports = {
+export default {
   0: { zh: '晴朗', en: 'Clear sky', ja: '快晴', ko: '맑음' },
   1: { zh: '主要晴天', en: 'Mainly clear', ja: '晴れ', ko: '대체로 맑음' },
   2: { zh: '部分多云', en: 'Partly cloudy', ja: '一部曇り', ko: '부분 흐림' },

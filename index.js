@@ -1,9 +1,9 @@
-const express = require('express')
-const parser = require('body-parser')
-const axios = require('axios')
-const franc = require('franc')
-const iso6393to1 = require('iso-639-3-to-1')
-const weatherCodeMapMulti = require('./weatherCodeMapMulti')
+import express from 'express'
+import parser from 'body-parser'
+import axios from 'axios'
+import franc from 'franc'
+import iso6393to1 from 'iso-639-3-to-1'
+import weatherCodeMapMulti from './weatherCodeMapMulti'
 
 const app = express()
 const PORT = process.env.PORT || 8080
