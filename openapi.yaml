@@ -1,0 +1,31 @@
+openapi: 3.0.0
+info:
+  title: Weather Tool
+  version: 1.0.0
+  description: Query current weather by city name
+servers:
+  - url: http://106.15.201.186:8080
+paths:
+  /weather:
+    post:
+      summary: Get current weather
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city:
+                  type: string
+                  description: City to query
+      responses:
+        '200':
+          description: Weather result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reply:
+                    type: string
