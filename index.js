@@ -1,9 +1,9 @@
 import express from 'express'
 import parser from 'body-parser'
 import axios from 'axios'
-import franc from 'franc'
+import { franc } from 'franc'
 import iso6393to1 from 'iso-639-3-to-1'
-import weatherCodeMapMulti from './weatherCodeMapMulti'
+import weatherCodeMapMulti from './weatherCodeMapMulti.js'
 
 const app = express()
 const PORT = process.env.PORT || 8080
@@ -20,7 +20,7 @@ app.post('/weather', async (req, res) => {
 
   try {
     // 自动识别城市名称使用的语言
-    const lang3 = franc.franc(city) // 返回 ISO 639-3 语言码
+    const lang3 = franc(city) // 返回 ISO 639-3 语言码
     const lang = iso6393to1[lang3] || DEFAULT_LANG // 转成 ISO 639-1，默认英文
     // 使用 Open-Meteo API（无需授权）
     const geo = await axios.get(`https://geocoding-api.open-meteo.com/v1/search`, {
